@@ -15,11 +15,10 @@ Built to demonstrate API integration, real-time match data fetching, and modern 
 
 ---
 
-## 📲 Download  
+## 📲 Download  ![GitHub Downloads (all assets, all releases)]()  
 
 Get the latest APK release here:  
-Coming Soon..
-
+[![Download Apk](https://custom-icon-badges.demolab.com/badge/-Download_Apk-blue?style=for-the-badge&logo=download&logoColor=white "Download Apk")](https://github.com/chrosanc/sport-viewer/releases/latest)
 ---
 
 ## 📸 Screenshots  
