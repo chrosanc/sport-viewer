@@ -15,7 +15,7 @@ Built to demonstrate API integration, real-time match data fetching, and modern 
 
 ---
 
-## 📲 Download  ![GitHub Downloads (all assets, all releases)]()  
+## 📲 Download  ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/chrosanc/sport-viewer/total?link=https%3A%2F%2Fgithub.com%chrosanc%sport-viewer%2Freleases)  
 
 Get the latest APK release here:  
 [![Download Apk](https://custom-icon-badges.demolab.com/badge/-Download_Apk-blue?style=for-the-badge&logo=download&logoColor=white "Download Apk")](https://github.com/chrosanc/sport-viewer/releases/latest)
