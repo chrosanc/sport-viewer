@@ -21,26 +21,23 @@ class MatchModel {
     this.sources,
   });
 
+  /// Parses a StreamFree `/api/v1/streams` item.
   factory MatchModel.fromJson(Map<String, dynamic> json) {
-    final teams = json['teams'];
-    TeamModel? homeTeam;
-    TeamModel? awayTeam; 
-    if (teams != null && teams['home'] != null && teams['away'] != null) {
-      homeTeam = TeamModel.fromJson(teams['home'] ?? {});
-      awayTeam = TeamModel.fromJson(teams['away'] ?? {});
-    }
+    final key = json['stream_key'] ?? '';
+    final thumb = json['thumbnail_url']?.toString();
     return MatchModel(
-      id: json['id'] ?? '',
-      title: json['title'] ?? '',
+      id: key,
+      title: json['name'] ?? '',
       category: json['category'] ?? '',
-      date: json['date'] as int,
-      poster: json['poster']?.toString() ?? '',
-      popular: (json['popular'] ?? false) as bool,
-      home: homeTeam,
-      away: awayTeam,
-      sources: (json['sources'] as List?)
-          ?.map((e) => SourcesModel.fromJson(e))
-          .toList(),
+      date: ((json['match_timestamp'] ?? 0) as int) * 1000,
+      // ponytail: thumbnail host streamfree.top often unreachable; same path served by strmfree.st.
+      poster: thumb == null
+          ? ''
+          : Uri.parse(thumb).replace(host: 'strmfree.st').toString(),
+      popular: ((json['viewers'] ?? 0) as int) > 0,
+      home: json['team1'] == null ? null : TeamModel.fromJson(json['team1']),
+      away: json['team2'] == null ? null : TeamModel.fromJson(json['team2']),
+      sources: [SourcesModel(source: 'strmfree', id: key)],
     );
   }
 }
@@ -50,10 +47,7 @@ class TeamModel {
   String? badge;
   TeamModel({this.name, this.badge});
   factory TeamModel.fromJson(Map<String, dynamic> json) {
-    return TeamModel(
-      name: json['name'] ?? '' ,
-      badge: json['badge'] ?? '',
-    );
+    return TeamModel(name: json['name'] ?? '', badge: json['logo'] ?? '');
   }
 }
 

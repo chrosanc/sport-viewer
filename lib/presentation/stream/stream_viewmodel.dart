@@ -115,26 +115,25 @@ class StreamViewmodel extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   Future<void> refreshPage() async {
-  if (selectedMatch == null) return;
+    if (selectedMatch == null) return;
 
-  isLoading = true;
-  notifyListeners();
-
-  try {
-    // Panggil ulang semua sumber stream
-    for (final source in selectedMatch!.sources!) {
-      await fetchStreams(source.id.toString(), source.source);
-    }
-
-    print('✅ Page refreshed, all streams reloaded.');
-  } catch (e) {
-    errorMessage = 'Error refreshing page: $e';
-  } finally {
-    isLoading = false;
+    isLoading = true;
     notifyListeners();
-  }
-}
 
+    try {
+      // Panggil ulang semua sumber stream
+      for (final source in selectedMatch!.sources!) {
+        await fetchStreams(source.id.toString(), source.source);
+      }
+
+      print('✅ Page refreshed, all streams reloaded.');
+    } catch (e) {
+      errorMessage = 'Error refreshing page: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> fetchStreams(String matchId, String source) async {
     isLoading = true;
@@ -198,7 +197,7 @@ class StreamViewmodel extends ChangeNotifier {
     if (uri == null) return NavigationDecision.prevent;
 
     final isAllowedDomain =
-        uri.host.contains('embedsports.top') || uri.path.endsWith('.m3u8');
+        uri.host.contains('strmfree.st') || uri.path.endsWith('.m3u8');
     return isAllowedDomain
         ? NavigationDecision.navigate
         : NavigationDecision.prevent;
@@ -227,11 +226,12 @@ class StreamViewmodel extends ChangeNotifier {
   // HELPERS
   // ---------------------------------------------------------------------------
 
-bool isStreamSelected(String source, int streamNo) {
-  final isCurrentSource = _selectedSourceId?.toLowerCase() == source.toLowerCase();
-  final selectedStreamNo = selectedStreams[source];
-  return isCurrentSource && selectedStreamNo == streamNo;
-} 
+  bool isStreamSelected(String source, int streamNo) {
+    final isCurrentSource =
+        _selectedSourceId?.toLowerCase() == source.toLowerCase();
+    final selectedStreamNo = selectedStreams[source];
+    return isCurrentSource && selectedStreamNo == streamNo;
+  }
 
   void resetData() {
     webViewController = null;

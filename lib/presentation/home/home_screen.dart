@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         return StreamcardWidget(
                           title: item.title,
                           description: item.category,
-                          posterUrl: "https://streamed.pk${item.poster}",
+                          posterUrl: item.poster ?? '',
                           onTap: () async {
                             streamViewmodel.setSelectedMatch(item);
                             viewmodel.NavigateToStreamScreen(context);
