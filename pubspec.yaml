@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.0+2
+version: 1.2.0+3
 
 environment:
   sdk: ^3.9.0
@@ -65,6 +65,13 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  uses-material-design: true
+  assets:
+    - assets/appainter_theme.json
+    - assets/image/app-icon.png
+    # ponytail: landing-only screenshots, also bundled in APK (~120 KB). Split if size matters.
+    - assets/image/screen_matches.jpg
+    - assets/image/screen_stream.jpg
   fonts:
     - family: Inter
       fonts:
@@ -78,13 +85,10 @@ flutter_launcher_icons:
   min_sdk_android: 21
   adaptive_icon_background: "#000000"
   adaptive_icon_foreground: "assets/image/app-icon.png"
-
-  assets:
-    - assets/appainter_theme.json
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
-  uses-material-design: true
+  web:
+    generate: true
+    background_color: "#000000"
+    theme_color: "#0A0A0A"
 
   # To add assets to your application, add an assets section, like this:
   # assets:

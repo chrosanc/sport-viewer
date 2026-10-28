@@ -13,7 +13,8 @@ class StreamSelectWidget extends StatefulWidget {
     required this.streamNo,
     required this.isHD,
     required this.onTap,
-    required this.source, required this.isActive,
+    required this.source,
+    required this.isActive,
   }) : super(key: key);
 
   @override
@@ -21,17 +22,13 @@ class StreamSelectWidget extends StatefulWidget {
 }
 
 class _StreamSelectWidgetState extends State<StreamSelectWidget> {
-  bool? _isSelectedLocal;
-
   @override
   void initState() {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
       onTap: widget.onTap,
       child: AnimatedContainer(
@@ -60,7 +57,9 @@ class _StreamSelectWidgetState extends State<StreamSelectWidget> {
                 style: GoogleFonts.inter(
                   color: Colors.white,
                   fontSize: 16,
-                  fontWeight: widget.isActive ? FontWeight.bold : FontWeight.w400,
+                  fontWeight: widget.isActive
+                      ? FontWeight.bold
+                      : FontWeight.w400,
                 ),
               ),
             ),

@@ -13,7 +13,7 @@ class StreamDatasource {
     if (response.statusCode != 200) {
       throw Exception('Failed to load streams : ${response.statusCode}');
     }
-    final live = jsonDecode(response.body)['live_sources'];
+    final live = jsonDecode(response.body)['sources'];
     if (live is! List) throw Exception('Unexpected data format');
     return [
       for (var i = 0; i < live.length; i++)

@@ -3,9 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:streamed_mobile/app/utils/capitalize_text.dart';
-import 'package:streamed_mobile/presentation/home/home_viewmodel.dart';
 import 'package:streamed_mobile/presentation/stream/stream_viewmodel.dart';
-import 'package:streamed_mobile/presentation/stream/widget/stream_server_widget.dart';
+import 'package:streamed_mobile/presentation/stream/widget/stream_select_widget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class StreamScreen extends StatefulWidget {
@@ -19,7 +18,6 @@ class _StreamScreenState extends State<StreamScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = Provider.of<StreamViewmodel>(context);
-    final homeViewmodel = Provider.of<HomeViewmodel>(context);
 
     if (vm.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -63,7 +61,6 @@ class _StreamScreenState extends State<StreamScreen> {
                 : RefreshIndicator(
                     onRefresh: () async {
                       await vm.refreshPage();
-
                     },
                     child: SafeArea(
                       child: Stack(
@@ -76,7 +73,9 @@ class _StreamScreenState extends State<StreamScreen> {
                                   16, // tinggi video
                             ),
                             child: SingleChildScrollView(
-                              physics: const BouncingScrollPhysics(),
+                              physics: const AlwaysScrollableScrollPhysics(
+                                parent: BouncingScrollPhysics(),
+                              ),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
@@ -115,29 +114,32 @@ class _StreamScreenState extends State<StreamScreen> {
                                     ),
                                     const SizedBox(height: 12),
 
-                                    ListView.builder(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemCount:
-                                          vm.selectedMatch?.sources?.length ??
-                                          0,
-                                      itemBuilder: (context, index) {
-                                        final source =
-                                            vm.selectedMatch?.sources?[index];
-                                        if (source == null)
-                                          return const SizedBox();
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 10,
-                                          ),
-                                          child: StreamServerWidget(
-                                            title: source.source,
-                                            sourceId: source.id,
-                                          ),
-                                        );
-                                      },
-                                    ),
+                                    if (vm.streamsBySource.values.every(
+                                      (l) => l.isEmpty,
+                                    ))
+                                      Text(
+                                        'No streams available',
+                                        style: GoogleFonts.inter(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    for (final s
+                                        in vm.streamsBySource.values.expand(
+                                          (l) => l,
+                                        ))
+                                      StreamSelectWidget(
+                                        streamNo: s.streamNo,
+                                        isHD: s.hd,
+                                        source: s.source,
+                                        isActive: vm.isStreamSelected(
+                                          s.source,
+                                          s.streamNo,
+                                        ),
+                                        onTap: () => vm.selectStream(
+                                          s.streamNo,
+                                          s.source,
+                                        ),
+                                      ),
 
                                     const SizedBox(height: 50),
                                   ],

@@ -52,30 +52,20 @@ class StreamViewmodel extends ChangeNotifier {
       isLoading = true;
       errorMessage = '';
       notifyListeners();
-      try {
-        for (final source in match.sources!) {
-          await fetchStreams(source.id.toString(), source.source);
-        }
-        final firstSource = match.sources!.first.source;
-        final firstList = streamsBySource[firstSource];
-        if (firstList != null && firstList.isNotEmpty) {
-          _embedUrl = firstList.first.embedUrl;
-          selectedStreams[firstSource] = firstList.first.streamNo;
-          _selectedSourceId = firstSource;
+      await _fetchAllSources();
+      // Auto-select first source that actually has streams.
+      for (final source in match.sources!) {
+        final list = streamsBySource[source.source];
+        if (list != null && list.isNotEmpty) {
+          _embedUrl = list.first.embedUrl;
+          selectedStreams[source.source] = list.first.streamNo;
+          _selectedSourceId = source.source;
           await initializeWebView();
+          break;
         }
-      } catch (e) {
-        errorMessage = 'Error fetching streams : $e';
-      } finally {
-        isLoading = false;
-        notifyListeners();
       }
-    }
-
-    // Ambil stream untuk source pertama
-    if (match.sources != null && match.sources!.isNotEmpty) {
-      final firstSource = match.sources!.first;
-      await fetchStreams(firstSource.id.toString(), firstSource.source);
+      isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -96,79 +86,48 @@ class StreamViewmodel extends ChangeNotifier {
       orElse: () => sourceStreams.first,
     );
 
-    final newEmbedUrl = selectedStream.embedUrl;
-    print('🔁 Changing Stream to $streamNo | URL : $newEmbedUrl');
-    // Update WebView dengan URL baru
-    if (webViewController != null) {
-      await webViewController!.loadRequest(Uri.parse(newEmbedUrl));
-    } else {
-      print('🧭 WebViewController not Ready');
-      embedUrl = newEmbedUrl;
-      await initializeWebView();
-    }
-    await refreshPage();
+    selectedStreams[source] = selectedStream.streamNo;
+    _selectedSourceId = source;
+    _embedUrl = selectedStream.embedUrl;
     notifyListeners();
+
+    if (webViewController != null) {
+      await webViewController!.loadRequest(Uri.parse(_embedUrl));
+    } else {
+      await initializeWebView();
+      notifyListeners();
+    }
   }
 
   // ---------------------------------------------------------------------------
   // FETCH STREAMS
   // ---------------------------------------------------------------------------
 
+  /// Re-fetch stream lists without touching current selection or player.
   Future<void> refreshPage() async {
-    if (selectedMatch == null) return;
-
-    isLoading = true;
+    if (selectedMatch?.sources == null) return;
+    await _fetchAllSources();
     notifyListeners();
-
-    try {
-      // Panggil ulang semua sumber stream
-      for (final source in selectedMatch!.sources!) {
-        await fetchStreams(source.id.toString(), source.source);
-      }
-
-      print('✅ Page refreshed, all streams reloaded.');
-    } catch (e) {
-      errorMessage = 'Error refreshing page: $e';
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
   }
 
-  Future<void> fetchStreams(String matchId, String source) async {
-    isLoading = true;
+  Future<void> _fetchAllSources() async {
     errorMessage = '';
-    notifyListeners();
+    await Future.wait(
+      selectedMatch!.sources!.map(
+        (s) => fetchStreams(s.id.toString(), s.source),
+      ),
+    );
+  }
 
+  /// Fetch-only; one failing source must not break others.
+  Future<void> fetchStreams(String matchId, String source) async {
     try {
-      final result = await dataSource.fetchStreamsByMatchId(matchId, source);
-      streamsBySource[source] = result;
-
-      print('Streams for Source : $source (${result.length} streams)');
-      for (var s in result) {
-        print('- Stream No ${s.streamNo} , Embed URL : ${s.embedUrl}');
-      }
-
-      print('\n----- All Streams By Source -----');
-      streamsBySource.forEach((key, value) {
-        print('Source: $key → ${value.length} streams');
-        for (var v in value) {
-          print('   • Stream ${v.streamNo} | ${v.embedUrl}');
-        }
-      });
-      print('---------------------------------\n');
-
-      if (result.isNotEmpty) {
-        _embedUrl = result.first.embedUrl;
-        selectedStreams[source] = result.first.streamNo;
-        _selectedSourceId = source;
-        await initializeWebView();
-      }
+      streamsBySource[source] = await dataSource.fetchStreamsByMatchId(
+        matchId,
+        source,
+      );
     } catch (e) {
-      errorMessage = 'Error fetching streams: $e';
-    } finally {
-      isLoading = false;
-      notifyListeners();
+      errorMessage = 'Error fetching streams ($source): $e';
     }
   }
 
